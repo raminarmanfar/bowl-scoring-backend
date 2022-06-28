@@ -18,11 +18,8 @@ public class ScoreingController {
     private ScoringService scoringService;
 
     @GetMapping("/create-new-game")
-    public ResponseEntity<String> startNewGame() {
-        BowlScore bowlScore = scoringService.createNewGame();
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("New Game has been created successfully.\n");
+    public BowlScore startNewGame() {
+        return scoringService.createNewGame();
     }
 
     @GetMapping("/get-game-data")
@@ -31,7 +28,7 @@ public class ScoreingController {
     }
 
     @GetMapping("/score/{score}")
-    public BowlScore score(@PathVariable("score") short score) {
+    public BowlScore score(@PathVariable byte score) {
         return scoringService.score(score);
     }
 }

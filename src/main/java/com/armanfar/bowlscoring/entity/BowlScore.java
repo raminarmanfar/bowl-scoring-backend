@@ -1,49 +1,66 @@
 package com.armanfar.bowlscoring.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.armanfar.bowlscoring.entity.StepEnum.FIRST;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
+@Builder(toBuilder = true)
 public class BowlScore {
     @Id
-    private long id;
+    private Integer id;
 
     @Column
-    private short currentFrameIndex;
+    private int currentFrameIndex = 0;
 
     @Column
-    @Enumerated(EnumType.ORDINAL)
-    private StepEnum currentRound;
+    @Enumerated(EnumType.STRING)
+    private StepEnum currentRound = FIRST;
 
     @Column
-    private short keypadValueThreshold;
+    private int keypadValueThreshold = 10;
 
     @Column
-    private boolean gameOver;
+    private boolean gameOver = false;
 
     @Column
-    private boolean lastFrameBlockVisible;
+    private boolean lastFrameBlockVisible = false;
 
-    @OneToMany(mappedBy = "bowlScore")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bowlScore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Frame> frames;
 
-    public static BowlScore build() {
-        BowlScore bowlScore = new BowlScore();
-        bowlScore.id = 1;
-        bowlScore.currentFrameIndex = 0;
-        bowlScore.currentRound = StepEnum.FIRST;
-        bowlScore.keypadValueThreshold = 10;
-        bowlScore.gameOver = false;
-        bowlScore.lastFrameBlockVisible = false;
-        bowlScore.frames = new ArrayList(10);
-        return bowlScore;
+    public BowlScore(int id) {
+        this.id = id;
+    }
+
+    @JsonIgnore
+    public Frame getCurrentFrame() {
+        return frames.get(currentFrameIndex);
+    }
+
+    public Frame getFrameByIndex(int index) {
+        return index >= 0 && index < 10 ? frames.get(index) : null;
+    }
+
+    @JsonIgnore
+    public Frame getPreviousFrame() {
+        return getFrameByIndex(currentFrameIndex - 1);
+    }
+
+    public int getFrameScoreByIndex(int frameIndex) {
+        Frame frame = getFrameByIndex(frameIndex);
+        return frame != null ? frame.getFrameScore() : 0;
+    }
+
+    public int moveNextFrame() {
+        return ++currentFrameIndex;
     }
 }

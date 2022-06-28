@@ -1,44 +1,56 @@
 package com.armanfar.bowlscoring.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder(toBuilder = true)
 public class Frame {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Integer id;
 
     @Column
-    private int frameIndex;
+    @Enumerated(EnumType.STRING)
+    private RoundStatusEnum roundStatus = RoundStatusEnum.NULL;
 
     @Column
-    @Enumerated(EnumType.ORDINAL)
-    private RoundStatusEnum roundStatus;
+    private int firstRoundScore = -1;
 
     @Column
-    private int firstRoundScore;
+    private int secondRoundScore = -1;
 
     @Column
-    private int secondRoundScore;
+    private int thirdRoundScore = -1;
 
     @Column
-    private int thirdRoundScore;
+    private int frameScore = 0;
 
     @Column
-    private int frameScore;
-
-    @Column
-    private boolean isScored;
+    private boolean isScored = false;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private BowlScore bowlScore;
+
+    public Frame(int id, BowlScore bowlScore) {
+        this.id = id;
+        this.bowlScore = bowlScore;
+    }
+
+    public static List<Frame> buildFrames(BowlScore bowlScore, int frameCount) {
+        ArrayList<Frame> frames = new ArrayList();
+        for (int i = 0; i < frameCount; i++) {
+            frames.add(new Frame(i, bowlScore));
+        }
+        return frames;
+    }
 }
