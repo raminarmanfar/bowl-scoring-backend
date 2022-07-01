@@ -3,8 +3,8 @@ services:
   bowl-scoring-server:
     image: raminarmanfar/bowl-scoring-backend
     container_name: scoring-server
-    build:
-      context: ./bowl-scoring-backend
+    # build:
+    #   context: ./bowl-scoring-backend
     environment:
       - HTTP_PORT=3400
     ports:
